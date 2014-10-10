@@ -1,0 +1,121 @@
+<html>
+<script language="JAVASCRIPT">
+function PieGraph(config){
+    this.canvas = config.canvas;
+	this.radius = config.radius;
+	this.origX = this.canvas.width / 2;
+	this.origY = this.canvas.height / 2;
+	this.context = this.canvas.getContext("2d");
+
+	// Adjust if radius is  0 or unspecified
+	if (this.radius == '0') {
+		var min = this.canvas.height;
+		if (this.canvas.width < min) 
+			min = this.canvas.width;
+		min = Math.floor(min / 2);
+		this.radius = min - 50;
+	}
+	this.textOffset = 10;
+	this.drawBackground();
+}
+
+PieGraph.prototype.legendPosition = function(x1,y1) {
+	this.legendX = x1;
+	this.legendY = y1;
+}
+
+PieGraph.prototype.writeLegend = function(str,color1) {
+	var ctx = this.context;
+	var boxW = 10;
+	var boxH = 10;
+	ctx.font = "12px sans-serif";
+	ctx.fillStyle = color1;
+	ctx.fillRect(this.legendX,this.legendY,boxW,boxH);
+	this.legendY += boxH;
+	this.legendX += boxW + 4;
+	ctx.fillStyle = "#000000";
+	ctx.fillText(str,this.legendX,this.legendY);
+	this.legendX += (str.length * 6) + 5;
+	this.legendY -= boxH;
+}
+
+PieGraph.prototype.resetLegend = function() {
+	this.legendPosition(20,this.canvas.height -30);
+}
+ 
+PieGraph.prototype.resetPie = function() {
+	this.fragment = new Number(1);
+}
+ 
+PieGraph.prototype.drawBackground = function() {
+	var ctx = this.context;
+	ctx.fillStyle = "#FFFFFF";
+	ctx.fill();
+	ctx.fillRect(0,0,this.canvas.width,this.canvas.height);
+}
+PieGraph.prototype.convertCoordY = function(hyp,quad) {
+	if (quad == 3 || quad == 4) 
+	      return (this.origY - hyp - this.textOffset);
+	if (quad == 1 || quad == 2)
+		  return (this.origY + hyp + this.textOffset);
+}
+
+PieGraph.prototype.convertCoordX = function(adj,quad) {
+	if (quad == 1 || quad == 4) 
+	      return (this.origX + adj);
+	if (quad == 2 || quad == 3)
+		  return (this.origX - adj);
+}
+
+PieGraph.prototype.specialAngle = function(angulo) {
+	if (angulo == 360) return true;
+	if (angulo == 180) return true;
+	if (angulo == 90) return true;
+	if (angulo == 270) return true;
+	if (angulo == 0) return true;
+	return false;
+}
+ 
+PieGraph.prototype.drawPiece = function(piece,color){
+	var ctx = this.context;
+	var prcnt = new Number(piece);
+	if (prcnt > 1) {
+		alert("Valores aceptados de 0 a 1");
+		return false;
+	}
+	ctx.beginPath();
+	ctx.moveTo(this.origX,this.origY);
+	ctx.arc(this.origX,this.origY,
+	         this.radius,0,this.fragment * Math.PI * 2,false);
+	ctx.fillStyle = color;
+	ctx.fill();
+	ctx.closePath();
+	ctx.stroke();
+	this.fragment = this.fragment - prcnt;
+}
+  
+
+</script>
+<body bgcolor="#ACACEC">
+<canvas bgcolor="white" id="myCanvas" width="300" height="240">
+</canvas>
+<script language="javascript">
+function dibuja(radsize){
+    var canvas = document.getElementById("myCanvas"); 
+    var myGraph = new PieGraph({
+        canvas: canvas,
+		radius : radsize,
+    });	
+	var color1 = "#0000dd";
+	var color2 = "#ff0000";
+	var color3 = "#00ff00";
+	myGraph.resetPie();
+	myGraph.drawPiece('0.70',color1);
+	myGraph.drawPiece('0.10',color2);
+	myGraph.drawPiece('0.20',color3);
+};
+    dibuja('0');
+</script>
+</body>
+</html>
+
